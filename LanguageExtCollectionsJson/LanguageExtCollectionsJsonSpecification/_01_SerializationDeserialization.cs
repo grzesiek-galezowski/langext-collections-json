@@ -2,8 +2,6 @@ using System.Collections.Immutable;
 using FluentAssertions;
 using LanguageExt;
 using LanguageExtCollectionsJson.Converters;
-using LanguageExtCollectionsJson.Framework;
-using Newtonsoft.Json;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace LanguageExtCollectionsJsonSpecification;
@@ -13,77 +11,58 @@ public class _01_SerializationDeserialization
     [Test]
     public void ShouldBeSerializedWithBothSerializersTheSameAsList()
     {
-        var stjSerializedSeq = JsonSerializer.Serialize(Seq<int>.Empty.Add(1).Add(2));
-        var nsSerializedSeq = JsonConvert.SerializeObject(Seq<int>.Empty.Add(1).Add(2));
-        var stjSerializedArr = JsonSerializer.Serialize(Arr<int>.Empty.Add(1).Add(2), SystemTextJsonOptions.WithLanguageExtExtensions());
-        var nsSerializedArr = JsonConvert.SerializeObject(Arr<int>.Empty.Add(1).Add(2));
-        var serializedList = JsonConvert.SerializeObject(new List<int> { 1, 2 });
+        var serializedSeq = JsonSerializer.Serialize(Seq<int>.Empty.Add(1).Add(2));
+        var serializedArr = JsonSerializer.Serialize(Arr<int>.Empty.Add(1).Add(2), SystemTextJsonOptions.WithLanguageExtExtensions());
+        var serializedList = JsonSerializer.Serialize(new List<int> { 1, 2 });
 
-        stjSerializedSeq.Should().Be(serializedList);
-        nsSerializedSeq.Should().Be(serializedList);
-        stjSerializedArr.Should().Be(serializedList);
-        nsSerializedArr.Should().Be(serializedList);
+        serializedSeq.Should().Be(serializedList);
+        serializedArr.Should().Be(serializedList);
     }
     
     [Test]
     public void ShouldBeDeserializedWithBothSerializersFromSerializedList()
     {
         var originalList = new List<int> { 1, 2 };
-        var serializedList = JsonConvert.SerializeObject(originalList);
-        var nsDeserializedSeq = JsonConvert.DeserializeObject<Seq<int>>(serializedList);
-        var stjDeserializedSeq = JsonSerializer.Deserialize<Seq<int>>(serializedList, SystemTextJsonOptions.WithLanguageExtExtensions());
-        var nsDeserializedArr = JsonConvert.DeserializeObject<Arr<int>>(serializedList);
-        var stjDeserializedArr = JsonSerializer.Deserialize<Arr<int>>(serializedList, SystemTextJsonOptions.WithLanguageExtExtensions());
+        var serializedList = JsonSerializer.Serialize(originalList);
+        var deserializedSeq = JsonSerializer.Deserialize<Seq<int>>(serializedList, SystemTextJsonOptions.WithLanguageExtExtensions());
+        var deserializedArr = JsonSerializer.Deserialize<Arr<int>>(serializedList, SystemTextJsonOptions.WithLanguageExtExtensions());
 
-        stjDeserializedSeq.Should().Equal(originalList);
-        nsDeserializedSeq.Should().Equal(originalList);
-        
-        stjDeserializedArr.ToArray().Should().Equal(originalList); //conversion needed
-        nsDeserializedArr.ToArray().Should().Equal(originalList); //conversion needed
+        deserializedSeq.Should().Equal(originalList);
+        deserializedArr.ToArray().Should().Equal(originalList); //conversion needed
     }
     
     [Test]
     public void ShouldBeSerializedWithinDataStructureWithBothSerializersTheSameAsList()
     {
-        var stjSerializedSeqRecord = JsonSerializer.Serialize(new DataWithSeq(Seq<int>.Empty.Add(1).Add(2)), SystemTextJsonOptions.WithLanguageExtExtensions());
-        var nsSerializedSeqRecord = JsonConvert.SerializeObject(new DataWithSeq(Seq<int>.Empty.Add(1).Add(2)));
-        var stjSerializedArrRecord = JsonSerializer.Serialize(new DataWithArr(Arr<int>.Empty.Add(1).Add(2)), SystemTextJsonOptions.WithLanguageExtExtensions());
-        var nsSerializedArrRecord = JsonConvert.SerializeObject(new DataWithArr(Arr<int>.Empty.Add(1).Add(2)));
-        var nsSerializedListRecord = JsonConvert.SerializeObject(new DataWithImmutableArray(ImmutableArray<int>.Empty.Add(1).Add(2)));
-        var stjSerializedListRecord = JsonSerializer.Serialize(new DataWithImmutableArray(ImmutableArray<int>.Empty.Add(1).Add(2)));
+        var serializedSeqRecord = JsonSerializer.Serialize(new DataWithSeq(Seq<int>.Empty.Add(1).Add(2)), SystemTextJsonOptions.WithLanguageExtExtensions());
+        var serializedArrRecord = JsonSerializer.Serialize(new DataWithArr(Arr<int>.Empty.Add(1).Add(2)), SystemTextJsonOptions.WithLanguageExtExtensions());
+        var serializedListRecord = JsonSerializer.Serialize(new DataWithImmutableArray(ImmutableArray<int>.Empty.Add(1).Add(2)));
 
-        nsSerializedSeqRecord.Should().Be(nsSerializedListRecord);
-        nsSerializedArrRecord.Should().Be(nsSerializedListRecord);
-        stjSerializedSeqRecord.Should().Be(stjSerializedListRecord);
-        stjSerializedArrRecord.Should().Be(stjSerializedListRecord);
+        serializedSeqRecord.Should().Be(serializedListRecord);
+        serializedArrRecord.Should().Be(serializedListRecord);
     }
     
     [Test]
     public void ShouldBeSerializedWithinDataStructureWithAttributesWithSystemTextJsonSerializersTheSameAsList()
     {
-        var stjSerializedSeqRecordWithAttribute = JsonSerializer.Serialize(new DataWithSeqAttribute(Seq<int>.Empty.Add(1).Add(2)), SystemTextJsonOptions.WithLanguageExtExtensions());
-        var stjSerializedArrRecordWithAttribute = JsonSerializer.Serialize(new DataWithArrAttribute(Arr<int>.Empty.Add(1).Add(2)));
-        var stjSerializedListRecord = JsonSerializer.Serialize(new DataWithImmutableArray(ImmutableArray<int>.Empty.Add(1).Add(2)));
+        var serializedSeqRecordWithAttribute = JsonSerializer.Serialize(new DataWithSeqAttribute(Seq<int>.Empty.Add(1).Add(2)), SystemTextJsonOptions.WithLanguageExtExtensions());
+        var serializedArrRecordWithAttribute = JsonSerializer.Serialize(new DataWithArrAttribute(Arr<int>.Empty.Add(1).Add(2)));
+        var serializedListRecord = JsonSerializer.Serialize(new DataWithImmutableArray(ImmutableArray<int>.Empty.Add(1).Add(2)));
 
-        stjSerializedSeqRecordWithAttribute.Should().Be(stjSerializedListRecord);
-        stjSerializedArrRecordWithAttribute.Should().Be(stjSerializedListRecord);
+        serializedSeqRecordWithAttribute.Should().Be(serializedListRecord);
+        serializedArrRecordWithAttribute.Should().Be(serializedListRecord);
     }
     
     [Test]
     public void ShouldBeDeserializedWithinDataStructureWithBothSerializersFromSerializedList()
     {
         var originalList = new DataWithImmutableArray(ImmutableArray<int>.Empty.Add(1).Add(2));
-        var serializedList = JsonConvert.SerializeObject(originalList);
-        var nsDeserializedSeq = JsonConvert.DeserializeObject<DataWithSeq>(serializedList);
-        var stjDeserializedSeq = JsonSerializer.Deserialize<DataWithSeq>(serializedList, SystemTextJsonOptions.WithLanguageExtExtensions());
-        var nsDeserializedArr = JsonConvert.DeserializeObject<DataWithArr>(serializedList);
-        var stjDeserializedArr = JsonSerializer.Deserialize<DataWithArr>(serializedList, SystemTextJsonOptions.WithLanguageExtExtensions());
+        var serializedList = JsonSerializer.Serialize(originalList);
+        var deserializedSeq = JsonSerializer.Deserialize<DataWithSeq>(serializedList, SystemTextJsonOptions.WithLanguageExtExtensions());
+        var deserializedArr = JsonSerializer.Deserialize<DataWithArr>(serializedList, SystemTextJsonOptions.WithLanguageExtExtensions());
 
-        stjDeserializedSeq.Ints.Should().Equal(originalList.Ints);
-        nsDeserializedSeq.Ints.Should().Equal(originalList.Ints);
-        
-        stjDeserializedArr.Ints.ToArray().Should().Equal(originalList.Ints);
-        nsDeserializedArr.Ints.ToArray().Should().Equal(originalList.Ints);
+        deserializedSeq.Ints.Should().Equal(originalList.Ints);
+        deserializedArr.Ints.ToArray().Should().Equal(originalList.Ints);
     }
 
     public record DataWithImmutableArray(ImmutableArray<int> Ints);
